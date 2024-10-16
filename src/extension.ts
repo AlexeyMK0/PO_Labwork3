@@ -49,7 +49,9 @@ function readFilesFromDirectiory(directory: string) : Array<string> {
 	});
 	return arr;
 }
-async function makeQuickChoice(arr: string[], defaultValue: string | undefined) : Promise<string | undefined> {
+async function makeQuickChoice(arr: string[], defaultValue: string | undefined) : 
+	Promise<string | undefined>
+{
 	if (arr.length == 0) return defaultValue;
 	let ret = defaultValue;
 	let pick = vscode.window.showQuickPick(arr);
@@ -58,6 +60,11 @@ async function makeQuickChoice(arr: string[], defaultValue: string | undefined) 
 	});
 	console.log("chosen layout: " + ret);
 	return ret;
+}
+
+async function switchLayoutPreset(presetsDirName: string) : Promise<string | undefined> {
+	let allPresets = readFilesFromDirectiory(presetsDirName);
+	return await makeQuickChoice(allPresets, settings.chosen_preset);
 }
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -104,9 +111,8 @@ export async function activate(context: vscode.ExtensionContext) {
 			if (settings.chosen_preset == undefined) return;
 			editor.edit(editBuilder => {
 				editor.selections.forEach(sel => {
-					const range = sel;
 					let modifiedSelText = getModifiedSelectionText(sel);
-					editBuilder.replace(range, modifiedSelText);
+					editBuilder.replace(sel, modifiedSelText);
 				})
 			});
 		}
@@ -118,7 +124,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	);
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {
 	writeSettings(makePath(settingsFileName), settings);
 }
