@@ -60,18 +60,14 @@ async function makeQuickChoice(arr: string[], defaultValue: string | undefined) 
 	return ret;
 }
 
-async function switchLayoutPreset(presetsDirName: string) : Promise<string | undefined> {
-	let allPresets = readFilesFromDirectiory(presetsDirName);
-	return await makeQuickChoice(allPresets, settings.chosen_preset);
-}
-
 export async function activate(context: vscode.ExtensionContext) {
 
 	settings = readSettings(makePath(settingsFileName));
 	let map: Map<string, string>;
 
 	async function changePreset() {
-		settings.chosen_preset = await switchLayoutPreset(presetsDirName);
+		let allPresets = readFilesFromDirectiory(presetsDirName);
+		settings.chosen_preset = await makeQuickChoice(allPresets, settings.chosen_preset);
 		if (settings.chosen_preset == undefined) return;
 		map = readKeys(makePresetPath(settings.chosen_preset));
 	} 
